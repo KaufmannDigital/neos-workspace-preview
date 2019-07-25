@@ -5,6 +5,7 @@ use Neos\ContentRepository\Domain\Service\ContextFactoryInterface;
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Mvc\ActionRequest;
 use Neos\Flow\Security\Authentication\Controller\AbstractAuthenticationController;
+use Neos\Flow\Session\Session;
 use Neos\Neos\Domain\Service\ContentContext;
 use Flownative\TokenAuthentication\Security\Repository\HashAndRolesRepository;
 
@@ -24,6 +25,12 @@ class HashTokenLoginController extends AbstractAuthenticationController
      * @var ContextFactoryInterface
      */
     protected $contextFactory;
+
+    /**
+     * @Flow\Inject
+     * @var Session
+     */
+    protected $session;
 
     protected function errorAction()
     {
@@ -68,6 +75,8 @@ class HashTokenLoginController extends AbstractAuthenticationController
         $context = $this->contextFactory->create(['workspaceName' => $workspaceName]);
         $siteNode = $context->getCurrentSiteNode();
 
+        $this->session->start();
+        $this->getControllerContext()->getResponse()->setCookie($this->session->getSessionCookie());
         $this->redirect('show', 'Frontend\Node', 'Neos.Neos', ['node' => $siteNode]);
     }
 }
